@@ -5,6 +5,7 @@ import (
 	"github.com/phayes/hookserve/hookserve"
 	"github.com/urfave/cli"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -12,6 +13,8 @@ var app *cli.App
 var listenValue int
 var secretValue string
 var rootValue string
+var gitbaseValue string
+var gitsuffixValue string
 
 func init() {
 	app = cli.NewApp()
@@ -38,6 +41,18 @@ func init() {
 					Value:       "/var/lib/tuleap/gitolite/repositories",
 					Destination: &rootValue,
 				},
+				cli.StringFlag{
+					Name:        "gitbase",
+					EnvVar:      "UPDATE_TULEAP_GIT_BASE",
+					Value:       "git@github.com:udistrital",
+					Destination: &gitbaseValue,
+				},
+				cli.StringFlag{
+					Name:        "gitsuffix",
+					EnvVar:      "UPDATE_TULEAP_GIT_SUFFIX",
+					Value:       ".git",
+					Destination: &gitsuffixValue,
+				},
 			},
 		},
 	}
@@ -49,27 +64,29 @@ func runaction(ctx *cli.Context) (err error) {
 	server.Secret = secretValue
 	server.GoListenAndServe()
 
-	// Everytime the server receives a webhook event, print the results
 	for {
 		select {
 		case event := <-server.Events:
 			if event.Type == "push" {
 				var matches []string
+				var combined_output []byte
 				var err error
-				if matches, err = filepath.Glob(rootValue + "/*/" + event.Repo + ".git"); err != nil {
+				if matches, err = filepath.Glob(fmt.Sprintf("%s/*/%s.git", rootValue, event.Repo)); err != nil {
 					fmt.Println(err.Error())
 					continue
 				}
-				for match := range matches {
-					fmt.Println(match)
+				fmt.Printf("len matches for %s: %d\n", event.Repo, len(matches))
+				if len(matches) != 1 {
+					continue
 				}
-				// buscar en los directorios de tuleap event.Repo
-				// si no lo encontramos:
-				// fail
-				// si encontramos mas de uno
-				// fail
-				// cd "the repo dir" && git fetch "the repo url" +refs/heads/*:refs/heads/* --prune
-				fmt.Println("%v", event)
+				match := matches[0]
+				fmt.Printf("match: %s\n", match)
+				command := exec.Command(fmt.Sprintf("echo git fetch %s/%s%s %s:%s", gitbaseValue, match, gitsuffixValue, event.Branch, event.Branch))
+				if combined_output, err = command.CombinedOutput(); err != nil {
+					fmt.Println(err.Error())
+				} else if len(combined_output) != 0 {
+					fmt.Println(combined_output[:])
+				}
 			}
 		}
 	}
