@@ -75,13 +75,21 @@ func runaction(ctx *cli.Context) (err error) {
 					fmt.Println(err.Error())
 					continue
 				}
-				fmt.Printf("len matches for %s: %d\n", event.Repo, len(matches))
+				fmt.Printf("len matches for %v: %v\n", event.Repo, len(matches))
 				if len(matches) != 1 {
 					continue
 				}
 				match := matches[0]
-				fmt.Printf("match: %s\n", match)
-				command := exec.Command(fmt.Sprintf("echo git fetch %s/%s%s %s:%s", gitbaseValue, match, gitsuffixValue, event.Branch, event.Branch))
+				fmt.Printf("match: %v\n", match)
+				cmnd := "echo"
+				args := []string{
+					"git",
+					"fetch",
+					fmt.Sprintf("%s/%s%s", gitbaseValue, match, gitsuffixValue),
+					fmt.Sprintf("%s:%s", event.Branch, event.Branch),
+				}
+				fmt.Printf("cmnd & args: %v %v\n", cmnd, args)
+				command := exec.Command(cmnd, args...)
 				if combined_output, err = command.CombinedOutput(); err != nil {
 					fmt.Println(err.Error())
 				} else if len(combined_output) != 0 {
