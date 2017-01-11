@@ -85,15 +85,17 @@ func runaction(ctx *cli.Context) (err error) {
 				args := []string{
 					"git",
 					"fetch",
-					fmt.Sprintf("%s/%s%s", gitbaseValue, match, gitsuffixValue),
+					fmt.Sprintf("%s/%s%s", gitbaseValue, event.Repo, gitsuffixValue),
 					fmt.Sprintf("%s:%s", event.Branch, event.Branch),
 				}
 				fmt.Printf("cmnd & args: %v %v\n", cmnd, args)
 				command := exec.Command(cmnd, args...)
+				command.Env = []string{"GIT_DIR=" + match}
 				if combined_output, err = command.CombinedOutput(); err != nil {
 					fmt.Println(err.Error())
-				} else if len(combined_output) != 0 {
-					fmt.Println(combined_output[:])
+				}
+				if len(combined_output) != 0 {
+					fmt.Println(string(combined_output[:]))
 				}
 			}
 		}
