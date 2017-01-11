@@ -81,9 +81,8 @@ func runaction(ctx *cli.Context) (err error) {
 				}
 				match := matches[0]
 				fmt.Printf("match: %v\n", match)
-				cmnd := "echo"
+				cmnd := "git"
 				args := []string{
-					"git",
 					"fetch",
 					fmt.Sprintf("%s/%s%s", gitbaseValue, event.Repo, gitsuffixValue),
 					fmt.Sprintf("%s:%s", event.Branch, event.Branch),
@@ -95,7 +94,7 @@ func runaction(ctx *cli.Context) (err error) {
 					fmt.Println(err.Error())
 				}
 				if len(combined_output) != 0 {
-					fmt.Println(string(combined_output[:]))
+					fmt.Print(string(combined_output[:]))
 				}
 			}
 		}
