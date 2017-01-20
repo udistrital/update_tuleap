@@ -1,0 +1,20 @@
+{
+	"ImportPath": "github.com/udistrital/update_tuleap",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/bmatsuo/go-jsontree",
+			"Rev": "8a1cc1e88d44390691f69163f6bc597aac267cc3"
+		},
+		{
+			"ImportPath": "github.com/phayes/hookserve/hookserve",
+			"Rev": "5688de3176153b9bae57e5dc246756f8b47680df"
+		},
+		{
+			"ImportPath": "github.com/urfave/cli",
+			"Comment": "v1.18.0-69-g55f715e",
+			"Rev": "55f715e28c46073d0e217e2ce8eb46b0b45e3db6"
+		}
+	]
+}
