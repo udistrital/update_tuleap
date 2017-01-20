@@ -1,0 +1,29 @@
+test:
+  image: golang:1.8
+  commands:
+    - go test -v ./...
+  when:
+    branch: develop
+
+build:
+  image: golang:1.8
+  commands:
+    - GOOS=linux GOARCH=amd64 go build -o update-tuleap-linux-x86_64
+    - GOOS=windows GOARCH=amd64 go build -o update-tuleap-windows-x86_64.exe
+    - GOOS=darwin GOARCH=amd64 go build -o update-tuleap-darwin-x86_64
+  when:
+    branch: master
+
+publish:
+  sftp:
+    host: nas03.udistritaloas.edu.co
+    port: 22
+    username: drone
+    password: $$DRONE_NAS_PASSWORD
+    destination_path: "/share/artifacts/update_tuleap/$${COMMIT:0:7}"
+    files:
+      - update-tuleap-linux-x86_64
+      - update-tuleap-windows-x86_64.exe
+      - update-tuleap-darwin-x86_64
+    when:
+      branch: master
