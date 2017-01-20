@@ -13,10 +13,10 @@ build:
   construccion:
     image: golang:1.8
     commands:
-      - mkdir -p "target/update_tuleap/$${COMMIT:0:7}"
-      - GOOS=linux GOARCH=amd64 go build -o "target/update_tuleap/$${COMMIT:0:7}/update-tuleap-linux-x86_64"
-      - GOOS=windows GOARCH=amd64 go build -o "target/update_tuleap/$${COMMIT:0:7}/update-tuleap-windows-x86_64.exe"
-      - GOOS=darwin GOARCH=amd64 go build -o "target/update_tuleap/$${COMMIT:0:7}/update-tuleap-darwin-x86_64"
+      - mkdir -p target
+      - GOOS=linux GOARCH=amd64 go build -o target/update-tuleap-$${COMMIT:0:7}-linux-x86_64
+      - GOOS=windows GOARCH=amd64 go build -o target/update-tuleap-$${COMMIT:0:7}-windows-x86_64.exe
+      - GOOS=darwin GOARCH=amd64 go build -o target/update-tuleap-$${COMMIT:0:7}-darwin-x86_64
     when:
       branch: master
 
@@ -26,8 +26,8 @@ publish:
     port: 22
     username: drone
     password: $$DRONE_NAS_PASSWORD
-    destination_path: "/share/artifacts"
+    destination_path: /share/artifacts/golang
     files:
-      - target/update_tuleap
+      - target/*
     when:
       branch: master
