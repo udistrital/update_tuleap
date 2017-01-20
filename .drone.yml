@@ -6,9 +6,7 @@ build:
     image: golang:1.8
     debug: true
     commands:
-      - echo haciendo go test -v ./...
       - go test -v ./...
-      - echo fin
     when:
       branch: develop
 
