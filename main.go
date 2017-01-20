@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 var app *cli.App
@@ -15,6 +16,7 @@ var secretValue string
 var rootValue string
 var gitbaseValue string
 var gitsuffixValue string
+var dronebaseValue string
 
 func init() {
 	app = cli.NewApp()
@@ -53,6 +55,12 @@ func init() {
 					Value:       ".git",
 					Destination: &gitsuffixValue,
 				},
+				cli.StringFlag{
+					Name:        "dronebase",
+					EnvVar:      "UPDATE_TULEAP_DRONE_BASE",
+					Value:       "ssh://git@ci.udistritaloas.edu.co:10022",
+					Destination: &dronebaseValue,
+				},
 			},
 		},
 	}
@@ -89,6 +97,29 @@ func runaction(ctx *cli.Context) (err error) {
 				}
 				fmt.Printf("cmnd & args: %v %v\n", cmnd, args)
 				command := exec.Command(cmnd, args...)
+				command.Env = []string{"GIT_DIR=" + match}
+				if combined_output, err = command.CombinedOutput(); err != nil {
+					fmt.Println(err.Error())
+				}
+				if len(combined_output) != 0 {
+					fmt.Print(string(combined_output[:]))
+				}
+				if event.Branch != "master" {
+					continue
+				}
+				split_match := strings.Split(match, "/")
+				split_match_size := len(split_match)
+				if split_match_size < 2 {
+					continue
+				}
+				tuleap_project_name := split_match[split_match_size-2]
+				args = []string{
+					"push",
+					fmt.Sprintf("%s/%s/%s%s", dronebaseValue, tuleap_project_name, event.Repo, gitsuffixValue),
+					"master:develop",
+				}
+				fmt.Printf("cmnd & args: %v %v\n", "echo", args) // replace "echo" with cmnd after testing
+				command = exec.Command("echo", args...)          // replace "echo" with cmnd after testing
 				command.Env = []string{"GIT_DIR=" + match}
 				if combined_output, err = command.CombinedOutput(); err != nil {
 					fmt.Println(err.Error())
