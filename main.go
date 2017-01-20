@@ -118,8 +118,8 @@ func runaction(ctx *cli.Context) (err error) {
 					fmt.Sprintf("%s/%s/%s%s", dronebaseValue, tuleap_project_name, event.Repo, gitsuffixValue),
 					"master:develop",
 				}
-				fmt.Printf("cmnd & args: %v %v\n", "echo", args) // replace "echo" with cmnd after testing
-				command = exec.Command("echo", args...)          // replace "echo" with cmnd after testing
+				fmt.Printf("cmnd & args: %v %v\n", cmnd, args)
+				command = exec.Command(cmnd, args...)
 				command.Env = []string{"GIT_DIR=" + match}
 				if combined_output, err = command.CombinedOutput(); err != nil {
 					fmt.Println(err.Error())
