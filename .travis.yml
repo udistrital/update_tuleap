@@ -1,1 +1,19 @@
-#dummy file julian complete
+
+language: go
+
+go:
+ - 1.7.x
+
+script:
+ - GOOS=linux GOARCH=amd64 go build
+
+deploy:
+  provider: releases
+  api_key:
+    secure: mikB9FBd37jogBL67VxWAtt/SbroQ8K2SPFxAhF3RktkM9rPciKYSLcBbSp8kyOe+UkhkEAJgWkzUujHOsLrx8T2hpKEP+2xp1/P6h9sz1NoY+gihl3Z+VnO6Dw3SlIh+pF4xBnafD7D7PxmcXHcom6n7+N+OGHWXN3BI6IWVDE93GDZnQR6NQJ+z5h8n/Jyd7qGDsv/VOKwwPDIiNMTDd4m/oUC6Z/Fgdtpe6V1Znx/fYAgvw3bsO3XgZ5K+wILBT2Fh7EWNRkLZEkTTqdWVLAXGJIe3aNEx/e9V4JHuz3IwPnVgSzvwqcizdx8mXS7D77oQAgdR8nrV25tE+KSPiT9uqW54rpASS9atu6+/hK1+DnrA3r4shr47rATogedMhS7Rsug2WkE1zNRPw3fjg7Pag+0fi/qjWdEjEKS1EcTZp6aJjYMZS4W74q1anU1l7OOlOslcJ+9gm17u63/SUS726yU52Zh45YY8bPYDvDNklYhaNY0rAEboJzOOD1myxxt3ULea+eTm3aygfj752QkN3OJdRoZOavRzBzmPujR2aEiBXVGVVTbnfPQDb7XIWy0GWzA2xg50Y5c8QJZe3ukWKpPpvqJ+OZM4I1zjnQJ1Nlu5vy8vL+gQ8dTRSQmJsjP0ajz/vBQ3Iir5EEwTQOau2M6X325lTTDq8aqM8k=
+  file: update_tuleap
+  skip_cleanup: true
+  on:
+    repo: udistrital/update_tuleap
+    tags: true
+
