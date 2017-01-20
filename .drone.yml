@@ -1,21 +1,25 @@
 clone:
   path: github.com/udistrital/update_tuleap
 
-test:
-  image: golang:1.8
-  commands:
-    - go test -v ./...
-  when:
-    branch: develop
-
 build:
-  image: golang:1.8
-  commands:
-    - GOOS=linux GOARCH=amd64 go build -o update-tuleap-linux-x86_64
-    - GOOS=windows GOARCH=amd64 go build -o update-tuleap-windows-x86_64.exe
-    - GOOS=darwin GOARCH=amd64 go build -o update-tuleap-darwin-x86_64
-  when:
-    branch: master
+  pruebas_unitarias:
+    image: golang:1.8
+    debug: true
+    commands:
+      - echo haciendo go test -v ./...
+      - go test -v ./...
+      - echo fin
+    when:
+      branch: develop
+
+  construccion:
+    image: golang:1.8
+    commands:
+      - GOOS=linux GOARCH=amd64 go build -o update-tuleap-linux-x86_64
+      - GOOS=windows GOARCH=amd64 go build -o update-tuleap-windows-x86_64.exe
+      - GOOS=darwin GOARCH=amd64 go build -o update-tuleap-darwin-x86_64
+    when:
+      branch: master
 
 publish:
   sftp:
