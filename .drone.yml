@@ -31,3 +31,15 @@ publish:
       - target/*
     when:
       branch: master
+
+notify:
+  webhook:
+    urls:
+      - https://api.telegram.org/bot$$DRONE_TELEGRAM_TOKEN/sendMessage
+    content_type: application/json
+    template: >
+      {
+        "chat_id": "-130629599",
+        "parse_mode": "Markdown",
+        "text": "`{{repo.full_name}}` [{{uppercase build.status}}]({{build.link_url}}) `{{build.branch}}`@{{truncate build.commit 7}}"
+      }
