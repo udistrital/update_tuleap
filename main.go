@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/phayes/hookserve/hookserve"
 	"github.com/urfave/cli"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -63,7 +64,7 @@ var runFlags = []cli.Flag{
 
 func init() {
 	app = cli.NewApp()
-	app.Usage = "Updates tuleap"
+	app.Usage = "Updates tuleap & GOGS"
 	app.Commands = []cli.Command{
 		{
 			Name:   "run",
@@ -130,20 +131,28 @@ func ensureGogsOrgRepo(org_name, repo_name string) (output string, err error) {
 	return
 }
 
-func processPushEvent(event hookserve.Event) {
+func processPushEvent(event hookserve.Event) (err error) {
 	var match, project, repo string
 	numMatches := getMatch(event.Repo, &match, &project, &repo)
-	if numMatches == 1 {
-		runGitCommand(match, []string{
-			"fetch",
-			fmt.Sprintf("%s/%s%s", gitBaseValue, event.Repo, ".git"),
-			fmt.Sprintf("%s:%s", event.Branch, event.Branch),
-		})
-	} else {
+	if numMatches != 1 {
 		// el repo no se encuentra en tuleap o se encuentra mas de una vez
 		// subir a drone con el nombre de organización que tiene en github
+		// bajar en tuleap en una ubicación temporal
+		match, err = ioutil.TempDir("", "update_tuleap_"+event.Repo)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		defer os.RemoveAll(match)
 		project = event.Owner
+		repo = event.Repo
+		runGitCommand(match, []string{"init"})
 	}
+	runGitCommand(match, []string{
+		"fetch",
+		fmt.Sprintf("%s/%s%s", gitBaseValue, event.Repo, ".git"),
+		fmt.Sprintf("%s:%s", event.Branch, event.Branch),
+	})
 	gogsRepoRef := fmt.Sprintf("%s/%s/%s%s", gogsBaseValue, project, event.Repo, ".git")
 	ensureGogsOrgRepo(project, event.Repo)
 	git_output, _ := runGitCommand(match, []string{
@@ -167,6 +176,7 @@ func processPushEvent(event hookserve.Event) {
 			fmt.Sprintf("%s:%s", "master", "develop"),
 		})
 	}
+	return
 }
 
 func processEvents(events chan hookserve.Event) {
